@@ -27,6 +27,7 @@ function AgentBrain(agent) {
     // this.actionCursor = 0;
 }
 AgentBrain.prototype.start = function () {
+    var self = this;
     // var testWait = actionUtils.serial([new ActionLibrary.Wait(3000)]);
 
     // var findWood = actionUtils.parallel([new ActionLibrary.LookRandom(), new ActionLibrary.StartMoveForward()]);
@@ -45,27 +46,27 @@ AgentBrain.prototype.start = function () {
     var find = new BehaviourLibrary.FindWood();
     find.pushBack(new ActionLibrary.LookRandom());
     find.pushBack(new ActionLibrary.Look())
-    find.pushBack(new ActionLibrary.StartMoveForward());
+//    find.pushBack(new ActionLibrary.StartMoveForward());
     find.block();
     find.on('completed', function() {
-        console.log('Found wood!')
+        console.log(self.agent.name + ' Found wood!')
     })
     var walk = new BehaviourLibrary.WalkToWood();
     walk.pushBack(new ActionLibrary.StartMoveForward());
     walk.pushBack(new ActionLibrary.Look())
     walk.block();
         walk.on('completed', function() {
-        console.log('Next to Wood!')
+        console.log(self.agent.name + ' Next to Wood!')
     })
     var chop = new BehaviourLibrary.ChopWood();
     chop.pushBack(new ActionLibrary.BreakBlock());
     chop.block();
     chop.on('completed', function() {
-        console.log('chopped')
+        console.log(self.agent.name + ' chopped')
     })
     testSequence.pushBack(find); // Step 1
-    testSequence.pushBack(walk); // Step 2
-    testSequence.pushBack(chop); // Step 3
+    // testSequence.pushBack(walk); // Step 2
+    // testSequence.pushBack(chop); // Step 3
     this.actionList = testSequence;
 }
 
@@ -103,7 +104,7 @@ AgentBrain.prototype.look = function () {
         cursor = cursor.plus(step_delta);
         var block = this.agent.bot.blockAt(cursor);
         if (block !== null && block.boundingBox !== "empty") { // Check if the block is not empty
-            console.log(block)
+   //         console.log(block)
             if (block.material === "wood")
                 this.wood = block;
             else

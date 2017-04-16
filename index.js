@@ -1,4 +1,4 @@
-var AgentManager = require('./agentManager.js');
+var LearningAgentManager = require('./Agent/learningAgentManager.js');
 var actionUtils = require('./ActionList/actionUtils');
 
 if(process.argv.length < 4 || process.argv.length > 5) {
@@ -6,6 +6,6 @@ if(process.argv.length < 4 || process.argv.length > 5) {
   process.exit(1);
 }
 
-var agentManager = new AgentManager(process.argv[2], parseInt(process.argv[3]));
+var agentManager = new LearningAgentManager(process.argv[2], parseInt(process.argv[3]), parseInt(process.argv[4]));
 
 agentManager.start();

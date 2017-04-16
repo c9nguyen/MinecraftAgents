@@ -24,10 +24,23 @@ GetWood.prototype.update = function (tick, agent) {
     }
 }
 
+function Learning(actionList, goal, trials) {
+    this.actionList = actionList;
+    this.goal = goal;
+    this.trials = trials;
+    this.trialsCounter = 0;
+
+    Behaviour.call(this);
+}
+
+FindWood.prototype = Object.create(Behaviour.prototype);
+FindWood.prototype.constructor = FindWood;
+
 // When would we have an action modify 
 function FindWood() { //This would become [Look, BrainLook, MoveForward]
     Behaviour.call(this);
 }
+
 
 FindWood.prototype = Object.create(Behaviour.prototype);
 FindWood.prototype.constructor = FindWood;

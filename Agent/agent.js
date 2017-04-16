@@ -1,8 +1,11 @@
 var AgentBrain = require('./agentBrain.js')
 
-function Agent(bot){
+function Agent(bot, name, manager){
+    console.log(name);
+    this.name = name;
     this.bot = bot;
     this.brain = new AgentBrain(this);
+    this.manager = manager; //The manager that managing this agent
     this.start();
 }
 

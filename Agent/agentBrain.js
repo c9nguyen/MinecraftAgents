@@ -9,7 +9,7 @@
 var ActionList = require('../ActionList/actionList.js')
 var actionUtils = require('../ActionList/actionUtils.js')
 var ActionLibrary = require('../ActionList/actionLibrary.js');
-var BehaviourLibrary = require('../Behaviour/behaviourLibrary.js');
+var learningBeharivourLibrary = require('../Behaviour/learningBeharivourLibrary.js');
 var Vec3 = require('vec3').Vec3;
 // var Wait = require('../ActionList/actionLibrary.js').Wait;
 // var StartMoveForward = require('../ActionList/actionLibrary.js').StartMoveForward;
@@ -42,29 +42,29 @@ AgentBrain.prototype.start = function () {
     // new ActionLibrary.StartMoveForward(), new ActionLibrary.Wait(3000),
     // new ActionLibrary.StopMoveForward()]);
 
-    var testSequence = new BehaviourLibrary.GetWood(); // Objective / Testing Objective
-    var find = new BehaviourLibrary.FindWood();
-    find.pushBack(new ActionLibrary.LookRandom());
-    find.pushBack(new ActionLibrary.Look())
-//    find.pushBack(new ActionLibrary.StartMoveForward());
-    find.block();
-    find.on('completed', function() {
-        console.log(self.agent.name + ' Found wood!')
-    })
-    var walk = new BehaviourLibrary.WalkToWood();
-    walk.pushBack(new ActionLibrary.StartMoveForward());
-    walk.pushBack(new ActionLibrary.Look())
-    walk.block();
-        walk.on('completed', function() {
-        console.log(self.agent.name + ' Next to Wood!')
-    })
-    var chop = new BehaviourLibrary.ChopWood();
-    chop.pushBack(new ActionLibrary.BreakBlock());
-    chop.block();
-    chop.on('completed', function() {
-        console.log(self.agent.name + ' chopped')
-    })
-    testSequence.pushBack(find); // Step 1
+    var testSequence = new learningBeharivourLibrary.GetWood(this.agent); // Objective / Testing Objective
+//     var find = new learningBeharivourLibrary.FindWood();
+//     find.pushBack(new ActionLibrary.LookRandom());
+//     find.pushBack(new ActionLibrary.Look())
+// //    find.pushBack(new ActionLibrary.StartMoveForward());
+//     find.block();
+//     find.on('completed', function() {
+//         console.log(self.agent.name + ' Found wood!')
+//     })
+//     var walk = new learningBeharivourLibrary.WalkToWood();
+//     walk.pushBack(new ActionLibrary.StartMoveForward());
+//     walk.pushBack(new ActionLibrary.Look())
+//     walk.block();
+//         walk.on('completed', function() {
+//         console.log(self.agent.name + ' Next to Wood!')
+//     })
+//     var chop = new learningBeharivourLibrary.ChopWood();
+//     chop.pushBack(new ActionLibrary.BreakBlock());
+//     chop.block();
+//     chop.on('completed', function() {
+//         console.log(self.agent.name + ' chopped')
+//     })
+//     testSequence.pushBack(find); // Step 1
     // testSequence.pushBack(walk); // Step 2
     // testSequence.pushBack(chop); // Step 3
     this.actionList = testSequence;

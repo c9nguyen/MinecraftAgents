@@ -13,7 +13,7 @@ LearningAgentManager.prototype.start = function () {
     for (var i = 0; i < this.amount; ++i) {
         console.log("Spawning");
         this.spawnAgent(i);
-    }
+    } 
     // this.startLoop();
     // console.log("Agents are ready!")
     // this.loop();

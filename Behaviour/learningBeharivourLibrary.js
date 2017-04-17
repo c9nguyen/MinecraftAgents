@@ -14,25 +14,25 @@ function GetWood(agent) { //This would become [FindWood, WalkToWood, ChopWood]
 
     var find = new FindWood();
     find.pushBack(new ActionLibrary.LookRandom());
-    find.pushBack(new ActionLibrary.Look())
+//    find.pushBack(new ActionLibrary.Look())
 //    find.pushBack(new ActionLibrary.StartMoveForward());
     find.block();
     find.on('completed', function() {
         console.log(agent.name + ' Found wood!')
     })
-    var walk = new WalkToWood();
-    walk.pushBack(new ActionLibrary.StartMoveForward());
-    walk.pushBack(new ActionLibrary.Look())
-    walk.block();
-        walk.on('completed', function() {
-        console.log(agent.name + ' Next to Wood!')
-    })
-    var chop = new ChopWood();
-    chop.pushBack(new ActionLibrary.BreakBlock());
-    chop.block();
-    chop.on('completed', function() {
-        console.log(agent.name + ' chopped')
-    })
+    // var walk = new WalkToWood();
+    // walk.pushBack(new ActionLibrary.StartMoveForward());
+    // walk.pushBack(new ActionLibrary.Look())
+    // walk.block();
+    //     walk.on('completed', function() {
+    //     console.log(agent.name + ' Next to Wood!')
+    // })
+    // var chop = new ChopWood();
+    // chop.pushBack(new ActionLibrary.BreakBlock());
+    // chop.block();
+    // chop.on('completed', function() {
+    //     console.log(agent.name + ' chopped')
+    // })
 
     this.pushBack(find); // Step 1
 }
@@ -79,8 +79,8 @@ FindWood.prototype.update = function (tick, agent) {
         // this.parent.pushBack(new WalkToWood())
         this.complete();
     } else if (this.size === 0) {
-        // this.pushBack(new ActionLibrary.Look());
-        // this.pushBack(new ActionLibrary.LookRandom());
+         this.pushBack(new ActionLibrary.Look());
+  //       this.pushBack(new ActionLibrary.LookRandom());
     } else {
         Behaviour.prototype.update.call(this, tick, agent);
     }

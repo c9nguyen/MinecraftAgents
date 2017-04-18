@@ -67,7 +67,7 @@ Agent.prototype.look = function(yaw, pitch) {
 };
 
 Agent.prototype.lookAtPosition = function(position) {
-    bot.lookAt(position);
+    this.bot.lookAt(position);
 };
 
 Agent.prototype.startDiagonalMove = function(verticalDirection, horizontalDirection){

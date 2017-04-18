@@ -55,6 +55,21 @@ StartMoveForward.prototype.update = function (delta, agent) {
     this.complete();
 }
 
+// function MoveForwardABit() {
+//     Action.call(this);
+//     this.amount = 5;
+// }
+
+// MoveForwardABit.prototype = Object.create(Action.prototype);
+// MoveForwardABit.prototype.constructor = StartMoveForward;
+
+// MoveForwardABit.prototype.update = function (delta, agent) {
+//     if ()
+//     agent.startMove('forward');
+//     console.log("Start Move");
+//     this.complete();
+// }
+
 function StopMoveForward() {
     Action.call(this)
 }
@@ -149,6 +164,7 @@ Look.prototype.update = function (delta, agent) {
     console.log("brain look")
     this.complete();
 }
+
 function LookRandom() {
     Action.call(this)
     this.random = 0;
@@ -164,6 +180,31 @@ LookRandom.prototype.update = function (delta, agent) {
     console.log("move head")
     this.complete();
 }
+
+/**
+ * Turn head to the right
+ */
+function TurnHeadRight() {
+    Action.call(this)
+    this.random = 0;
+    this.count = 0;
+}
+
+TurnHeadRight.prototype = Object.create(Action.prototype);
+TurnHeadRight.prototype.constructor = TurnHeadRight;
+
+
+
+TurnHeadRight.prototype.update = function (delta, agent) {
+//    let pitch = getRandomFloat(-Math.PI / 2, Math.PI / 2);
+    var originYaw = agent.bot.entity.yaw;
+    agent.look(originYaw + Math.PI / 16, 0);
+    console.log("turn right")
+    this.count++;
+    if (this.count >= 5)
+    this.complete();
+}
+
 //
 function ScanDirection() {
     Action.call(this)
@@ -249,6 +290,19 @@ function getRandomFloat(min, max) {
 //     }
 // }
 
+var actionList = [
+    "RotateHeadRandom",
+    "Look",
+    "Wait",
+    "StartMoveForward",
+    "StopMoveForward",
+    "StartMoveBackward",
+    "StopMoveBackward",
+    "LookRandom",
+    "BreakBlock",
+    "TurnHeadRight"
+]
+
 module.exports = {
     // GetWood,
     RotateHeadRandom,
@@ -259,7 +313,8 @@ module.exports = {
     StartMoveBackward,
     StopMoveBackward,
     LookRandom,
-    BreakBlock
+    BreakBlock,
+    TurnHeadRight
 }
 // module.exports.Wait = Wait;
 // module.exports.StartMoveForward = StartMoveForward;

@@ -13,7 +13,9 @@ function GetWood(agent) { //This would become [FindWood, WalkToWood, ChopWood]
 
 
     var find = new FindWood();
-    find.pushBack(new ActionLibrary.LookRandom());
+    this.pushBack(new ActionLibrary.Look());
+    this.pushBack(new ActionLibrary.TurnHeadRight());
+    this.pushBack(new ActionLibrary.Look());
 //    find.pushBack(new ActionLibrary.Look())
 //    find.pushBack(new ActionLibrary.StartMoveForward());
     find.block();
@@ -52,21 +54,24 @@ GetWood.prototype.update = function (tick, agent) {
     }
 }
 
-function Learning(actionList, goal, trials) {
-    this.actionList = actionList;
-    this.goal = goal;
-    this.trials = trials;
-    this.trialsCounter = 0;
+// function Learning(actionList, goal, trials) {
+//     this.actionList = actionList;
+//     this.goal = goal;
+//     this.trials = trials;
+//     this.trialsCounter = 0;
 
-    Behaviour.call(this);
-}
+//     Behaviour.call(this);
+// }
 
-FindWood.prototype = Object.create(Behaviour.prototype);
-FindWood.prototype.constructor = FindWood;
+// FindWood.prototype = Object.create(Behaviour.prototype);
+// FindWood.prototype.constructor = FindWood;
 
 // When would we have an action modify 
-function FindWood() { //This would become [Look, BrainLook, MoveForward]
+function FindWood() {
     Behaviour.call(this);
+    this.trials = 50;
+    this.trialsCounter = 0;
+    this.succeeded = false;
 }
 
 
@@ -74,13 +79,22 @@ FindWood.prototype = Object.create(Behaviour.prototype);
 FindWood.prototype.constructor = FindWood;
 
 FindWood.prototype.update = function (tick, agent) {
-    console.log(this.size)
+   // console.log(this.size)
+   if(this.trialsCounter >= this.trials) {
+       console.log("Failed");
+       this.complete();
+   }
+
     if (agent.brain.wood) {
         // this.parent.pushBack(new WalkToWood())
+        this.succeeded = true;
         this.complete();
     } else if (this.size === 0) {
-         this.pushBack(new ActionLibrary.Look());
-  //       this.pushBack(new ActionLibrary.LookRandom());
+        // this.pushBack(new ActionLibrary.Look());
+        // this.pushBack(new ActionLibrary.TurnHeadRight());
+        //  this.pushBack(new ActionLibrary.Look());
+        // this.pushBack(new ActionLibrary.LookRandom());
+        this.trialsCounter++;
     } else {
         Behaviour.prototype.update.call(this, tick, agent);
     }
@@ -124,6 +138,53 @@ ChopWood.prototype.update = function (tick, agent) {
         Behaviour.prototype.update.call(this, tick, agent);
     }
 }
+
+  /*  RotateHeadRandom,
+    Look,
+    Wait,
+    StartMoveForward,
+    StopMoveForward,
+    StartMoveBackward,
+    StopMoveBackward,
+    LookRandom,
+    BreakBlock,
+    TurnHeadRight*/
+function getAction(actionName) {
+    var action;
+    switch (actionName) {
+        case "Look":
+            action = new ActionLibrary.Look();
+            break;
+        case "Wait":
+            action = new ActionLibrary.Wait();
+            break;
+        case "StartMoveForward":
+            action = new ActionLibrary.StartMoveForward();
+            break;
+        case "StopMoveForward":
+            action = new ActionLibrary.StopMoveForward();
+            break;
+        case "StartMoveBackward":
+            action = new ActionLibrary.StartMoveBackward();
+            break;
+        case "StopMoveBackward":
+            action = new ActionLibrary.StopMoveBackward();
+            break;
+        case "LookRandom":
+            action = new ActionLibrary.LookRandom();
+            break;
+        case "BreakBlock":
+            action = new ActionLibrary.BreakBlock();
+            break;
+        case "TurnHeadRight":
+            action = new ActionLibrary.TurnHeadRight();
+            break;
+    }
+
+    return action;
+}
+
+
 
 module.exports = {
     GetWood,

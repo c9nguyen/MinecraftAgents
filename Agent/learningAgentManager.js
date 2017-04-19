@@ -1,5 +1,7 @@
 
 var mineflayer = require('mineflayer');
+var learningBeharivourLibrary = require('../Behaviour/learningBeharivourLibrary.js');
+var ActionLibrary = require('../ActionList/actionLibrary.js')
 // When we want to run multiple agents this will be helpful
 var Agent = require('./agent.js')
 function LearningAgentManager(host, port, amount) {
@@ -39,6 +41,20 @@ LearningAgentManager.prototype.spawnAgent = function (id) {
         // agent.update();
     });
     this.agents.push(agent);
+
+    var actionNameList = ['Look', 'TurnHeadRight'];
+
+    var testSequence = new learningBeharivourLibrary.GetWood(agent); // Objective / Testing Objective
+    var find = new learningBeharivourLibrary.FindWood(actionNameList);
+    // find.pushBack(new ActionLibrary.Look());
+    // find.pushBack(new ActionLibrary.TurnHeadRight());
+    find.block();
+    find.on('completed', function() {
+        //console.log(agent.name + ' Found wood!')
+    })
+    testSequence.pushBack(find); // Step 1
+
+    agent.setActionList(testSequence);
 }
 //TODO: update to do multiple agents
 LearningAgentManager.prototype.startLoop = function (loop) {
@@ -64,6 +80,8 @@ function test(agent) {
     agent.update();
     test(agent);
 }
+
+
 
 module.exports = LearningAgentManager;
 

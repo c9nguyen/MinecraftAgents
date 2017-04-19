@@ -19,6 +19,20 @@ TestAction.prototype.update = function (delta) {
     this.complete();
 }
 
+function Origin() {
+    Action.call(this)
+    this.random = 0;
+}
+
+Origin.prototype = Object.create(Action.prototype);
+Origin.prototype.constructor = Origin;
+
+Origin.prototype.update = function (delta, agent) {
+    agent.look(0, 0);
+    agent.stopMove();
+    this.complete();
+}
+
 function Wait(duration) {
     Action.call(this)
     // this.duration = duration || 100; // in milliseconds
@@ -26,6 +40,7 @@ function Wait(duration) {
     this.startTime = 0;
     this.once('started', function () { this.startTime = Date.now(); })
 }
+
 
 Wait.prototype = Object.create(Action.prototype);
 Wait.prototype.constructor = Wait;
@@ -187,7 +202,6 @@ LookRandom.prototype.update = function (delta, agent) {
 function TurnHeadRight() {
     Action.call(this)
     this.random = 0;
-    this.count = 0;
 }
 
 TurnHeadRight.prototype = Object.create(Action.prototype);
@@ -200,8 +214,6 @@ TurnHeadRight.prototype.update = function (delta, agent) {
     var originYaw = agent.bot.entity.yaw;
     agent.look(originYaw + Math.PI / 16, 0);
     console.log("turn right")
-    this.count++;
-    if (this.count >= 5)
     this.complete();
 }
 
@@ -289,22 +301,64 @@ function getRandomFloat(min, max) {
 //         this.complete();
 //     }
 // }
+function GetActionList() {
+    var actionList = [
+        "RotateHeadRandom",
+        "Look",
+        "Wait",
+        "StartMoveForward",
+        "StopMoveForward",
+        "StartMoveBackward",
+        "StopMoveBackward",
+        "LookRandom",
+        "BreakBlock",
+        "TurnHeadRight"
+    ];
 
-var actionList = [
-    "RotateHeadRandom",
-    "Look",
-    "Wait",
-    "StartMoveForward",
-    "StopMoveForward",
-    "StartMoveBackward",
-    "StopMoveBackward",
-    "LookRandom",
-    "BreakBlock",
-    "TurnHeadRight"
-]
+    return actionList;
+}
+
+function GetAction(actionName) {
+    var action;
+    switch (actionName) {
+        case "Look":
+            action = new Look();
+            break;
+        case "Wait":
+            action = new Wait();
+            break;
+        case "StartMoveForward":
+            action = new StartMoveForward();
+            break;
+        case "StopMoveForward":
+            action = new StopMoveForward();
+            break;
+        case "StartMoveBackward":
+            action = new StartMoveBackward();
+            break;
+        case "StopMoveBackward":
+            action = new StopMoveBackward();
+            break;
+        case "LookRandom":
+            action = new LookRandom();
+            break;
+        case "BreakBlock":
+            action = new BreakBlock();
+            break;
+        case "TurnHeadRight":
+            action = new TurnHeadRight();
+            break;
+    }
+
+    return action;
+}
+
 
 module.exports = {
     // GetWood,
+    GetActionList,
+    GetAction,
+    Origin,
     RotateHeadRandom,
     Look,
     Wait,
@@ -314,7 +368,8 @@ module.exports = {
     StopMoveBackward,
     LookRandom,
     BreakBlock,
-    TurnHeadRight
+    TurnHeadRight,
+
 }
 // module.exports.Wait = Wait;
 // module.exports.StartMoveForward = StartMoveForward;

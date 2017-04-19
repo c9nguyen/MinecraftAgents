@@ -42,6 +42,14 @@ var Direction = {
 
 // There is a fancier way to do directions but lets not get too complicated yet
 
+/**
+ * Reset agent to origin position and movement
+ */
+Agent.prototype.origin = function() {
+    this.look(0, 0);
+    this.stopMove();
+};
+
 Agent.prototype.startSprint = function() {
     this.bot.setControlState('sprint', true);
 };
@@ -102,6 +110,13 @@ Agent.prototype.ready = function()
         }
     }
     return false;
+}
+
+/**
+ * Send action list to brain
+ */
+Agent.prototype.setActionList = function (actionList) {
+    this.brain.setActionList(actionList);
 }
 
 module.exports = Agent;

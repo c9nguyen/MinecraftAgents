@@ -22,7 +22,7 @@ function AgentBrain(agent) {
     this.actionList = new ActionList();
     this.woodID = 17;
     this.wood = false;
-    this.viewDistance = 10;
+    this.viewDistance = 15;
     // this.actionSequence = ROUTINE.States.LOOKINGFORWOOD;
     // this.actionCursor = 0;
 }
@@ -42,7 +42,7 @@ AgentBrain.prototype.start = function () {
     // new ActionLibrary.StartMoveForward(), new ActionLibrary.Wait(3000),
     // new ActionLibrary.StopMoveForward()]);
 
-    var testSequence = new learningBeharivourLibrary.GetWood(this.agent); // Objective / Testing Objective
+//    var testSequence = new learningBeharivourLibrary.GetWood(this.agent); // Objective / Testing Objective
 //     var find = new learningBeharivourLibrary.FindWood();
 //     find.pushBack(new ActionLibrary.LookRandom());
 //     find.pushBack(new ActionLibrary.Look())
@@ -67,7 +67,7 @@ AgentBrain.prototype.start = function () {
 //     testSequence.pushBack(find); // Step 1
     // testSequence.pushBack(walk); // Step 2
     // testSequence.pushBack(chop); // Step 3
-    this.actionList = testSequence;
+ //   this.actionList = testSequence;
 }
 
 // function rayPlayerHeight(from_player) {
@@ -134,6 +134,13 @@ AgentBrain.prototype.nextToWood = function () {
     }
 
     return false;
+}
+
+/**
+ * Set the action list for brain
+ */
+AgentBrain.prototype.setActionList = function (actionList) {
+    this.actionList = actionList;
 }
 
 // AgentBrain.prototype.findItem = function(inventory, itemId) {

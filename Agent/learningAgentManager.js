@@ -13,14 +13,19 @@ function LearningAgentManager(host, port, amount) {
 
 LearningAgentManager.prototype.start = function () {
     this.almManager = new ActionLearningMaterialManager();
-    almManager.addMaterial('Look');
-    almManager.addMaterial('RotateHeadRandom');
-    almManager.addMaterial('TurnHeadRight');
+    this.almManager.addMaterial(['Look', 'Look']);
+    this.almManager.addMaterial(['LookRandom', 'Look']);
+    this.almManager.addMaterial(['TurnHeadRight', 'TurnHeadRight', 'Look']);
+    this.almManager.addMaterial(['TurnHeadRight', 'TurnHeadLeft', 'Look']);
+    this.almManager.addMaterial(['HeadUp', 'Look']);
+    this.almManager.addMaterial(['HeadDown', 'TurnHeadLeft']);
 
     for (var i = 0; i < this.amount; ++i) {
         console.log("Spawning");
         this.spawnAgent(i);
     } 
+
+
     // this.startLoop();
     // console.log("Agents are ready!")
     // this.loop();
@@ -50,7 +55,7 @@ LearningAgentManager.prototype.spawnAgent = function (id) {
 
     this.mainAgent = agent; //Working on 1 agent for now
 
-
+    this.initialActionForAgent(agent);
 }
 //TODO: update to do multiple agents
 LearningAgentManager.prototype.startLoop = function (loop) {
@@ -73,16 +78,24 @@ LearningAgentManager.prototype.loop = function () {
     this.loop();
 }
 
-LearningAgentManager.prototype.initialActionForAgent = function () {
+LearningAgentManager.prototype.initialActionForAgent = function (agent) {
     var self = this;
+    agent.brain.wood = false;
     var testSequence = new learningBeharivourLibrary.GetWood(agent); // Objective / Testing Objective
-    var find = new learningBeharivourLibrary.FindWood(actionNameList);
+
+    //Get a random actionlist
+    var randomIndex = this.almManager.randomMaterialIndex();
+    var actionList = this.almManager.getMaterialAction(randomIndex);
+//    console.log(actionList + " ticket: " + this.almManager.materialList[randomIndex].ticket);
+
+    var find = new learningBeharivourLibrary.FindWood(actionList);
     // find.pushBack(new ActionLibrary.Look());
     // find.pushBack(new ActionLibrary.TurnHeadRight());
     find.block();
     find.on('completed', function() {
         //console.log(agent.name + ' Found wood!')
-        self.initialActionForAgent();
+        self.almManager.materialReport(randomIndex, find.succeeded);
+        self.initialActionForAgent(agent);
     })
     testSequence.pushBack(find); // Step 1
 
@@ -111,7 +124,7 @@ ActionLearningMaterialManager.prototype.generateRandomMaterials = function(size)
  * Return an random material and its index
  * probability depends on number of tickets of material
  */
-ActionLearningMaterialManager.prototype.randomMaterial = function() {
+ActionLearningMaterialManager.prototype.randomMaterialIndex = function() {
     if (this.materialList.length < 1) return -1;
 
     //Count number of ticket
@@ -123,20 +136,24 @@ ActionLearningMaterialManager.prototype.randomMaterial = function() {
     //Choose a random value between 0 and total number of ticket
     var randomValue = Math.floor(Math.random() * totalTicket);
 
+  //  console.log("total Ticket: " + totalTicket + " randomValue: " + randomValue);
+
     //When the random value ran out, the current index is selected
     for (index = 0; index < this.materialList.length && randomValue >= 0; index++) {
-        randomValue -= this.materialList[index].ticket;
-    }
 
-    return index;
+        randomValue -= this.materialList[index].ticket;
+  //      console.log("randomValue: " + randomValue + " ticket: " + this.materialList[index].ticket);
+    }
+  //  console.log("Selected: " + (--index));
+    return --index;
 }
 
-ActionLearningMaterialManager.prototype.addMaterial = function(actionName) {
-    this.addMaterial.push(new ActionLearningMaterial(actionName));
+ActionLearningMaterialManager.prototype.addMaterial = function(actionNameList) {
+    this.materialList.push(new ActionLearningMaterial(actionNameList));
 }
 
 ActionLearningMaterialManager.prototype.getMaterialAction = function(index) {
-    this.addMaterial[index].name;
+    return this.materialList[index].actionList;
 }
 
 ActionLearningMaterialManager.prototype.materialReport = function(index, result) {

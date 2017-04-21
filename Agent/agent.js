@@ -65,8 +65,9 @@ Agent.prototype.stopMove = function() {
 
 Agent.prototype.dig = function(block) {
     if(this.brain.wood !== null) {
-    if (this.bot.targetDigBlock === null)
-        this.bot.dig(this.brain.wood);
+        console.log(this.brain.wood);
+        if (this.bot.targetDigBlock === null)
+            this.bot.dig(this.brain.wood);
     }
 }
 

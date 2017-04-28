@@ -377,14 +377,17 @@ function GetActionList() {
     var actionList = [
         "RotateHeadRandom",
         "Look",
-        "Wait",
-        "StartMoveForward",
-        "StopMoveForward",
-        "StartMoveBackward",
-        "StopMoveBackward",
+        // "Wait",
+        // "StartMoveForward",
+        // "StopMoveForward",
+        // "StartMoveBackward",
+        // "StopMoveBackward",
         "LookRandom",
-        "BreakBlock",
-        "TurnHeadRight"
+        //"BreakBlock",
+        "TurnHeadRight",
+        "TurnHeadLeft",
+        "HeadUp",
+        "HeadDown"
     ];
 
     return actionList;
@@ -393,6 +396,9 @@ function GetActionList() {
 function GetAction(actionName) {
     var action;
     switch (actionName) {
+        case "RotateHeadRandom":
+            action = new RotateHeadRandom();
+            break;
         case "Look":
             action = new Look();
             break;

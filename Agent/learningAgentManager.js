@@ -13,12 +13,12 @@ function LearningAgentManager(host, port, amount) {
 
 LearningAgentManager.prototype.start = function () {
     this.almManager = new ActionLearningMaterialManager();
-    this.almManager.addMaterial(['Look', 'Look']);
-    this.almManager.addMaterial(['LookRandom', 'Look']);
-    this.almManager.addMaterial(['TurnHeadRight', 'TurnHeadRight', 'Look']);
-    this.almManager.addMaterial(['TurnHeadRight', 'TurnHeadLeft', 'Look']);
-    this.almManager.addMaterial(['HeadUp', 'Look']);
-    this.almManager.addMaterial(['HeadDown', 'TurnHeadLeft']);
+    this.almManager.addMaterial(['Look']);
+    this.almManager.addMaterial(['LookRandom']);
+    this.almManager.addMaterial(['TurnHeadRight']);
+    this.almManager.addMaterial(['TurnHeadLeft']);
+    this.almManager.addMaterial(['HeadUp']);
+    this.almManager.addMaterial(['HeadDown']);
     this.runCounter = 0; 
 
     for (var i = 0; i < this.amount; ++i) {
@@ -160,22 +160,39 @@ ActionLearningMaterialManager.prototype.randomMaterialIndex = function() {
  */
 ActionLearningMaterialManager.prototype.mutate = function() {
     var lowestMaterial, lowestTicket, highestMaterial, highestTicket;
+    var lowestMaterialList = [], highestMaterialList = [];
     var actionLibrary = ActionLibrary.GetActionList();
     
     //need rework on searching method
+
+    //Search for lowest and highest ticket values
     this.materialList.map(function(material) {
         if (lowestTicket === undefined || lowestTicket > material.ticket) {
-            lowestMaterial = material;
             lowestTicket = material.ticket;
         }
     });
 
     this.materialList.map(function(material) {
         if (highestTicket === undefined || highestTicket < material.ticket) {
-            highestMaterial = material;
             highestTicket = material.ticket;
         }
     });
+
+    //Gathering materials with lowest and highest values
+    this.materialList.map(function(material) {
+        if (lowestTicket === material.ticket) {
+            lowestMaterialList.push(material);
+        }
+
+        if (highestTicket === material.ticket) {
+            highestMaterialList.push(material);
+        }
+    });
+
+    var randomIndex = Math.floor(Math.random() * lowestMaterialList.length);
+    lowestMaterial = lowestMaterialList[randomIndex];
+    randomIndex = Math.floor(Math.random() * highestMaterialList.length);
+    highestMaterial = highestMaterialList[randomIndex];
 
     //Copying action from highest material
     // console.log("Before: " + highestMaterial.actionList);
@@ -184,7 +201,7 @@ ActionLearningMaterialManager.prototype.mutate = function() {
         lowestMaterial.actionList.push(action);
     });
 
-    var randomIndex = Math.floor(Math.random() * actionLibrary.length);
+    randomIndex = Math.floor(Math.random() * actionLibrary.length);
     var randomAction = actionLibrary[randomIndex]; //get a random action from action list library
     randomIndex = Math.floor(Math.random() * lowestMaterial.actionList.length);
     lowestMaterial.actionList[randomIndex] = randomAction; //mutate a random action

@@ -176,7 +176,7 @@ Look.prototype.constructor = Look;
 
 Look.prototype.update = function (delta, agent) {
     agent.brain.look();
-    console.log("brain look")
+ //   console.log("brain look")
     this.complete();
 }
 
@@ -192,9 +192,11 @@ LookRandom.prototype.update = function (delta, agent) {
     let yaw = getRandomFloat(-Math.PI / 2, Math.PI / 2);
     let pitch = getRandomFloat(-Math.PI / 2, Math.PI / 2);
     agent.look(yaw, pitch);
-    console.log("move head")
+  //  console.log("move head")
     this.complete();
 }
+
+/* ================================================================================= */
 
 /**
  * Turn head to the right
@@ -213,10 +215,80 @@ TurnHeadRight.prototype.update = function (delta, agent) {
 //    let pitch = getRandomFloat(-Math.PI / 2, Math.PI / 2);
     var originYaw = agent.bot.entity.yaw;
     agent.look(originYaw + Math.PI / 16, 0);
-    console.log("turn right")
+  //  console.log("turn right")
     this.complete();
 }
 
+/* ================================================================================= */
+
+/**
+ * Turn head to the left
+ */
+function TurnHeadLeft() {
+    Action.call(this)
+    this.random = 0;
+}
+
+TurnHeadLeft.prototype = Object.create(Action.prototype);
+TurnHeadLeft.prototype.constructor = TurnHeadLeft;
+
+
+
+TurnHeadLeft.prototype.update = function (delta, agent) {
+//    let pitch = getRandomFloat(-Math.PI / 2, Math.PI / 2);
+    var originYaw = agent.bot.entity.yaw;
+    agent.look(originYaw - Math.PI / 16, 0);
+  //  console.log("turn left")
+    this.complete();
+}
+
+/* ================================================================================= */
+
+/**
+ * Turn head to the left
+ */
+function HeadUp() {
+    Action.call(this)
+    this.random = 0;
+}
+
+HeadUp.prototype = Object.create(Action.prototype);
+HeadUp.prototype.constructor = HeadUp;
+
+
+
+HeadUp.prototype.update = function (delta, agent) {
+//    let pitch = getRandomFloat(-Math.PI / 2, Math.PI / 2);
+    var originPith = agent.bot.entity.pitch;
+    agent.look(0, originPith + Math.PI / 16);
+  //  console.log("turn left")
+    this.complete();
+}
+
+/* ================================================================================= */
+
+/**
+ * Turn head to the left
+ */
+function HeadDown() {
+    Action.call(this)
+    this.random = 0;
+}
+
+HeadDown.prototype = Object.create(Action.prototype);
+HeadDown.prototype.constructor = HeadDown;
+
+
+
+HeadDown.prototype.update = function (delta, agent) {
+//    let pitch = getRandomFloat(-Math.PI / 2, Math.PI / 2);
+    var originPith = agent.bot.entity.pitch;
+    agent.look(0, originPith - Math.PI / 16);
+  //  console.log("turn left")
+    this.complete();
+}
+
+/* ================================================================================= */
 //
 function ScanDirection() {
     Action.call(this)
@@ -305,14 +377,17 @@ function GetActionList() {
     var actionList = [
         "RotateHeadRandom",
         "Look",
-        "Wait",
-        "StartMoveForward",
-        "StopMoveForward",
-        "StartMoveBackward",
-        "StopMoveBackward",
+        // "Wait",
+        // "StartMoveForward",
+        // "StopMoveForward",
+        // "StartMoveBackward",
+        // "StopMoveBackward",
         "LookRandom",
-        "BreakBlock",
-        "TurnHeadRight"
+        //"BreakBlock",
+        "TurnHeadRight",
+        "TurnHeadLeft",
+        "HeadUp",
+        "HeadDown"
     ];
 
     return actionList;
@@ -321,6 +396,9 @@ function GetActionList() {
 function GetAction(actionName) {
     var action;
     switch (actionName) {
+        case "RotateHeadRandom":
+            action = new RotateHeadRandom();
+            break;
         case "Look":
             action = new Look();
             break;
@@ -348,6 +426,15 @@ function GetAction(actionName) {
         case "TurnHeadRight":
             action = new TurnHeadRight();
             break;
+        case "TurnHeadLeft":
+            action = new TurnHeadLeft();
+            break;
+        case "HeadUp":
+            action = new HeadUp();
+            break;
+        case "HeadDown":
+            action = new HeadDown();
+            break;
     }
 
     return action;
@@ -368,8 +455,10 @@ module.exports = {
     StopMoveBackward,
     LookRandom,
     BreakBlock,
-    TurnHeadRight,
-
+    // TurnHeadRight,
+    // TurnHeadLeft,
+    // HeadUp,
+    // HeadDown,
 }
 // module.exports.Wait = Wait;
 // module.exports.StartMoveForward = StartMoveForward;

@@ -13,14 +13,20 @@ function LearningAgentManager(host, port, amount) {
 
 LearningAgentManager.prototype.start = function () {
     this.almManager = new ActionLearningMaterialManager();
-    almManager.addMaterial('Look');
-    almManager.addMaterial('RotateHeadRandom');
-    almManager.addMaterial('TurnHeadRight');
+    this.almManager.addMaterial(['Look']);
+    this.almManager.addMaterial(['LookRandom']);
+    this.almManager.addMaterial(['TurnHeadRight']);
+    this.almManager.addMaterial(['TurnHeadLeft']);
+    this.almManager.addMaterial(['HeadUp']);
+    this.almManager.addMaterial(['HeadDown']);
+    this.runCounter = 0; 
 
     for (var i = 0; i < this.amount; ++i) {
         console.log("Spawning");
         this.spawnAgent(i);
     } 
+
+
     // this.startLoop();
     // console.log("Agents are ready!")
     // this.loop();
@@ -50,7 +56,7 @@ LearningAgentManager.prototype.spawnAgent = function (id) {
 
     this.mainAgent = agent; //Working on 1 agent for now
 
-
+    this.initialActionForAgent(agent);
 }
 //TODO: update to do multiple agents
 LearningAgentManager.prototype.startLoop = function (loop) {
@@ -73,16 +79,30 @@ LearningAgentManager.prototype.loop = function () {
     this.loop();
 }
 
-LearningAgentManager.prototype.initialActionForAgent = function () {
+LearningAgentManager.prototype.initialActionForAgent = function (agent) {
     var self = this;
+    agent.brain.wood = false;
     var testSequence = new learningBeharivourLibrary.GetWood(agent); // Objective / Testing Objective
-    var find = new learningBeharivourLibrary.FindWood(actionNameList);
+
+    this.runCounter++;
+    if (this.runCounter >= 5) {
+        this.almManager.mutate();
+        this.runCounter = 1;
+    }
+
+    //Get a random actionlist
+    var randomIndex = this.almManager.randomMaterialIndex();
+    var actionList = this.almManager.getMaterialAction(randomIndex);
+    console.log(actionList + " ticket: " + this.almManager.materialList[randomIndex].ticket);
+
+    var find = new learningBeharivourLibrary.FindWood(actionList);
     // find.pushBack(new ActionLibrary.Look());
     // find.pushBack(new ActionLibrary.TurnHeadRight());
     find.block();
     find.on('completed', function() {
         //console.log(agent.name + ' Found wood!')
-        self.initialActionForAgent();
+        self.almManager.materialReport(randomIndex, find.succeeded);
+        self.initialActionForAgent(agent);
     })
     testSequence.pushBack(find); // Step 1
 
@@ -111,7 +131,7 @@ ActionLearningMaterialManager.prototype.generateRandomMaterials = function(size)
  * Return an random material and its index
  * probability depends on number of tickets of material
  */
-ActionLearningMaterialManager.prototype.randomMaterial = function() {
+ActionLearningMaterialManager.prototype.randomMaterialIndex = function() {
     if (this.materialList.length < 1) return -1;
 
     //Count number of ticket
@@ -123,20 +143,99 @@ ActionLearningMaterialManager.prototype.randomMaterial = function() {
     //Choose a random value between 0 and total number of ticket
     var randomValue = Math.floor(Math.random() * totalTicket);
 
+  //  console.log("total Ticket: " + totalTicket + " randomValue: " + randomValue);
+
     //When the random value ran out, the current index is selected
     for (index = 0; index < this.materialList.length && randomValue >= 0; index++) {
-        randomValue -= this.materialList[index].ticket;
-    }
 
-    return index;
+        randomValue -= this.materialList[index].ticket;
+  //      console.log("randomValue: " + randomValue + " ticket: " + this.materialList[index].ticket);
+    }
+  //  console.log("Selected: " + (--index));
+    return --index;
 }
 
-ActionLearningMaterialManager.prototype.addMaterial = function(actionName) {
-    this.addMaterial.push(new ActionLearningMaterial(actionName));
+/**
+ *
+ */
+ActionLearningMaterialManager.prototype.mutate = function() {
+    var lowestMaterial, lowestTicket, highestMaterial, highestTicket;
+    var lowestMaterialList = [], highestMaterialList = [];
+    var actionLibrary = ActionLibrary.GetActionList();
+    
+    //need rework on searching method
+
+    //Search for lowest and highest ticket values
+    this.materialList.map(function(material) {
+        if (lowestTicket === undefined || lowestTicket > material.ticket) {
+            lowestTicket = material.ticket;
+        }
+    });
+
+    this.materialList.map(function(material) {
+        if (highestTicket === undefined || highestTicket < material.ticket) {
+            highestTicket = material.ticket;
+        }
+    });
+
+    //Gathering materials with lowest and highest values
+    this.materialList.map(function(material) {
+        if (lowestTicket === material.ticket) {
+            lowestMaterialList.push(material);
+        }
+
+        if (highestTicket === material.ticket) {
+            highestMaterialList.push(material);
+        }
+    });
+
+    var randomIndex = Math.floor(Math.random() * lowestMaterialList.length);
+    lowestMaterial = lowestMaterialList[randomIndex];
+    randomIndex = Math.floor(Math.random() * highestMaterialList.length);
+    highestMaterial = highestMaterialList[randomIndex];
+
+    //Copying action from highest material
+    // console.log("Before: " + highestMaterial.actionList);
+    lowestMaterial.actionList.splice(0, lowestMaterial.actionList.length);
+    highestMaterial.actionList.map(function(action) {
+        lowestMaterial.actionList.push(action);
+    });
+
+    randomIndex = Math.floor(Math.random() * actionLibrary.length);
+    var randomAction = actionLibrary[randomIndex]; //get a random action from action list library
+    randomIndex = Math.floor(Math.random() * lowestMaterial.actionList.length);
+    lowestMaterial.actionList[randomIndex] = randomAction; //mutate a random action
+    lowestMaterial.ticket = 10;
+    // console.log("randonIndex: " + randomIndex);
+    // console.log("Mutated: " + lowestMaterial.actionList);
+
+    //mutate second material
+    lowestTicket = undefined
+    this.materialList.map(function(material) {
+        if (lowestTicket === undefined || lowestTicket > material.ticket) {
+            lowestMaterial = material;
+            lowestTicket = material.ticket;
+        }
+    });
+
+    //Copying action from highest material
+    lowestMaterial.actionList.splice(0, lowestMaterial.actionList.length);
+    highestMaterial.actionList.map(function(action) {
+        lowestMaterial.actionList.push(action);
+    });
+
+    var randomIndex = Math.floor(Math.random() * actionLibrary.length);
+    var randomAction = actionLibrary[randomIndex]; //get a random action from action list library
+    lowestMaterial.actionList.push(randomAction);
+    // console.log("Mutated: " + lowestMaterial.actionList);
+}
+
+ActionLearningMaterialManager.prototype.addMaterial = function(actionNameList) {
+    this.materialList.push(new ActionLearningMaterial(actionNameList));
 }
 
 ActionLearningMaterialManager.prototype.getMaterialAction = function(index) {
-    this.addMaterial[index].name;
+    return this.materialList[index].actionList;
 }
 
 ActionLearningMaterialManager.prototype.materialReport = function(index, result) {

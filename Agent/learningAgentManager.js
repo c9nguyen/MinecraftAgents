@@ -230,6 +230,21 @@ ActionLearningMaterialManager.prototype.mutate = function() {
     // console.log("Mutated: " + lowestMaterial.actionList);
 }
 
+/**
+ * Mutate a material. If second material is passed in, copy from that material to mutate
+ * 
+ */
+ActionLearningMaterialManager.prototype.mutateMaterial = function(materialIndexDes, materialIndexFrom) {
+    var mutationMaterial = this.materialList[materialIndexDes];
+    var actionListDes = mutationMaterial.actionList;
+
+    actionListDes.splice(0, actionListDes.length);
+    materialIndexFrom.actionList.map(function(action) {
+        actionListDes.push(action);
+    });
+
+}
+
 ActionLearningMaterialManager.prototype.addMaterial = function(actionNameList) {
     this.materialList.push(new ActionLearningMaterial(actionNameList));
 }
@@ -239,10 +254,7 @@ ActionLearningMaterialManager.prototype.getMaterialAction = function(index) {
 }
 
 ActionLearningMaterialManager.prototype.materialReport = function(index, result) {
-    if (result) //if the material succeed
-        this.materialList[index].increase();
-    else //failed
-        this.materialList[index].decrease();
+    this.materialList[index].report(result);
 }
 
 /* ================================================================================= */
@@ -255,24 +267,35 @@ ActionLearningMaterialManager.prototype.materialReport = function(index, result)
 function ActionLearningMaterial(actionList, ticket = 10) {
     this.actionList = actionList;
     this.ticket = ticket;
+    this.trial = 0;
+    this.succeeded = 0;
 }
 
 /**
  * Dencrease number of ticket
  * Min = 1
  */
-ActionLearningMaterial.prototype.decrease = function(amount = 1) {
-    this.ticket -= amount;
-    this.ticket = Math.max(this.ticket, 1);
+ActionLearningMaterial.prototype.report = function(result) {
+    this.trial++;
+    if (result) {
+        this.succeeded++;
+        this.ticket += amount;
+        this.ticket = Math.min(this.ticket, 20);
+    } else {
+        this.ticket -= amount;
+        this.ticket = Math.max(this.ticket, 1);
+    }
+
 }
 
 /**
  * Increase number of ticket
  * Max = 20
  */
-ActionLearningMaterial.prototype.increase = function(amount = 1) {
-    this.ticket += amount;
-    this.ticket = Math.min(this.ticket, 20);
+ActionLearningMaterial.prototype.reset = function() {
+    this.trial = 0;
+    this.succeeded = 0;
+    this.ticket = 10;
 }
 
 module.exports = LearningAgentManager;

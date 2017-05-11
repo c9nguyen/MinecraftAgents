@@ -253,8 +253,22 @@ ActionLearningMaterialManager.prototype.getMaterialAction = function(index) {
     return this.materialList[index].actionList;
 }
 
+/**
+ * A material report back with the result
+ * An action will be taken here depends on the result
+ */
 ActionLearningMaterialManager.prototype.materialReport = function(index, result) {
+    var randomRoll = (new Random() * 100);
+    var deleteRate = 5;
+    var copyRate = 5;
+
     this.materialList[index].report(result);
+    if (result && randomRoll < copyRate) {   
+        this.addMaterial(this.materialList[index].getActionList);
+    } else if (randomRoll < deleteRate) {
+        this.materialList.splice(index, 1);
+    }
+
 }
 
 /* ================================================================================= */
@@ -286,6 +300,18 @@ ActionLearningMaterial.prototype.report = function(result) {
         this.ticket = Math.max(this.ticket, 1);
     }
 
+}
+
+/**
+ * Return a clone of action list
+ */
+ActionLearningMaterial.prototype.getActionList = function() {
+    var cloneList = [];
+    this.actionList.map(function(action) {
+        cloneList.push(action);
+    });
+
+    return cloneList;
 }
 
 /**

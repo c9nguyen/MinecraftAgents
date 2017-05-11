@@ -25,7 +25,7 @@ Behaviour.prototype.constructor = Behaviour;
 Behaviour.prototype.loadActionList = function() {
     var self = this;
     this.actionNameList.map(function(name) {
-        self.pushBack(ActionLibrary.GetAction(name));
+        self.pushBack(ActionLibrary.getAction(name));
     });
 }
 

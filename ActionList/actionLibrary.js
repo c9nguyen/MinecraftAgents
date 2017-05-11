@@ -373,7 +373,7 @@ function getRandomFloat(min, max) {
 //         this.complete();
 //     }
 // }
-function GetActionList() {
+function getActionList() {
     var actionList = [
         "RotateHeadRandom",
         "Look",
@@ -393,7 +393,7 @@ function GetActionList() {
     return actionList;
 }
 
-function GetAction(actionName) {
+function getAction(actionName) {
     var action;
     switch (actionName) {
         case "RotateHeadRandom":
@@ -443,8 +443,8 @@ function GetAction(actionName) {
 
 module.exports = {
     // GetWood,
-    GetActionList,
-    GetAction,
+    getActionList,
+    getAction,
     Origin,
     RotateHeadRandom,
     Look,

@@ -13,12 +13,13 @@ function LearningAgentManager(host, port, amount) {
 
 LearningAgentManager.prototype.start = function () {
     this.almManager = new ActionLearningMaterialManager();
-    this.almManager.addMaterial(['Look']);
-    this.almManager.addMaterial(['LookRandom']);
-    this.almManager.addMaterial(['TurnHeadRight']);
-    this.almManager.addMaterial(['TurnHeadLeft']);
-    this.almManager.addMaterial(['HeadUp']);
-    this.almManager.addMaterial(['HeadDown']);
+    this.almManager.generateRandomMaterials(10);
+    // this.almManager.addMaterial(['Look']);
+    // this.almManager.addMaterial(['LookRandom']);
+    // this.almManager.addMaterial(['TurnHeadRight']);
+    // this.almManager.addMaterial(['TurnHeadLeft']);
+    // this.almManager.addMaterial(['HeadUp']);
+    // this.almManager.addMaterial(['HeadDown']);
     this.runCounter = 0; 
 
     for (var i = 0; i < this.amount; ++i) {
@@ -49,7 +50,7 @@ LearningAgentManager.prototype.spawnAgent = function (id) {
         // test.update();
         // if()
         // self.startLoop(true);
-        setInterval(agent.update.bind(agent), 100); // give our agent a reaction time?
+        setInterval(agent.update.bind(agent), 50); // give our agent a reaction time?
         // agent.update();
     });
     this.agents.push(agent);
@@ -120,10 +121,16 @@ function ActionLearningMaterialManager() {
     this.materialList = [];
 }
 
-ActionLearningMaterialManager.prototype.generateRandomMaterials = function(size) {
-    for (var i = 0; i < size; i++) {
-        var actionList = 
-        this.materialList
+/**
+ * Generate size number of random materials
+ */
+ActionLearningMaterialManager.prototype.generateRandomMaterials = function(size = 1) {
+    while (size -- > 0) {
+        var random = Math.floor(Math.random() * 5);         //random number of actions of new material
+        var newMaterial = new ActionLearningMaterial();
+        newMaterial.generateRandomActionList(random)
+        this.materialList.push(newMaterial);
+
     }
 }
 
@@ -161,7 +168,7 @@ ActionLearningMaterialManager.prototype.randomMaterialIndex = function() {
 ActionLearningMaterialManager.prototype.mutate = function() {
     var lowestMaterial, lowestTicket, highestMaterial, highestTicket;
     var lowestMaterialList = [], highestMaterialList = [];
-    var actionLibrary = ActionLibrary.GetActionList();
+    var actionLibrary = ActionLibrary.getActionList();
     
     //need rework on searching method
 
@@ -245,10 +252,16 @@ ActionLearningMaterialManager.prototype.mutateMaterial = function(materialIndexD
 
 }
 
+/**
+ * 
+ */
 ActionLearningMaterialManager.prototype.addMaterial = function(actionNameList) {
     this.materialList.push(new ActionLearningMaterial(actionNameList));
 }
 
+/**
+ * 
+ */
 ActionLearningMaterialManager.prototype.getMaterialAction = function(index) {
     return this.materialList[index].actionList;
 }
@@ -258,15 +271,19 @@ ActionLearningMaterialManager.prototype.getMaterialAction = function(index) {
  * An action will be taken here depends on the result
  */
 ActionLearningMaterialManager.prototype.materialReport = function(index, result) {
-    var randomRoll = (new Random() * 100);
+    var randomRoll = (Math.random() * 100);
     var deleteRate = 5;
     var copyRate = 5;
-
+    console.log(this.materialList.length);
     this.materialList[index].report(result);
-    if (result && randomRoll < copyRate) {   
-        this.addMaterial(this.materialList[index].getActionList);
+    if (result && randomRoll < copyRate) {
+        console.log("copied"); 
+        this.addMaterial(new ActionLearningMaterial(this.materialList[index].getActionList));
     } else if (randomRoll < deleteRate) {
         this.materialList.splice(index, 1);
+        console.log("deleted"); 
+        //if material list is too small, add a random one
+        if (this.materialList.length < 0)   this.generateRandomMaterials(1);
     }
 
 }
@@ -278,7 +295,7 @@ ActionLearningMaterialManager.prototype.materialReport = function(index, result)
  * @param {*} actionList 
  * @param {*} ticket number of ticket
  */
-function ActionLearningMaterial(actionList, ticket = 10) {
+function ActionLearningMaterial(actionList = [], ticket = 10) {
     this.actionList = actionList;
     this.ticket = ticket;
     this.trial = 0;
@@ -289,14 +306,28 @@ function ActionLearningMaterial(actionList, ticket = 10) {
  * Dencrease number of ticket
  * Min = 1
  */
+ActionLearningMaterial.prototype.generateRandomActionList = function(size) {
+    var actionList = ActionLibrary.getActionList();
+
+    while(size-- > 0) {
+        var random = Math.floor(Math.random() * actionList.length);
+        this.actionList.push(actionList[random]);
+    }
+}
+
+
+/**
+ * Dencrease number of ticket
+ * Min = 1
+ */
 ActionLearningMaterial.prototype.report = function(result) {
     this.trial++;
     if (result) {
         this.succeeded++;
-        this.ticket += amount;
+        this.ticket += 2;
         this.ticket = Math.min(this.ticket, 20);
     } else {
-        this.ticket -= amount;
+        this.ticket -= 1;
         this.ticket = Math.max(this.ticket, 1);
     }
 

@@ -1,0 +1,8 @@
+** subject:
+// start with 5 materials with 1 action in each
+// choose 1 random material to run
+// get result back and report to the manager
+// after each 5 times, mutate the list by choosing removing lowest material and make a copy of highest material
+// new material will change 1 random action
+    subject takes a long time to find good material
+    

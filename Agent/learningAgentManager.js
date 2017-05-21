@@ -87,7 +87,7 @@ LearningAgentManager.prototype.initialActionForAgent = function (agent) {
 
     this.runCounter++;
     if (this.runCounter >= 5) {
-        this.almManager.mutate();
+        //this.almManager.mutate();
         this.runCounter = 1;
     }
 
@@ -126,11 +126,9 @@ function ActionLearningMaterialManager() {
  */
 ActionLearningMaterialManager.prototype.generateRandomMaterials = function(size = 1) {
     while (size -- > 0) {
-        var random = Math.floor(Math.random() * 5);         //random number of actions of new material
-        var newMaterial = new ActionLearningMaterial();
-        newMaterial.generateRandomActionList(random)
-        this.materialList.push(newMaterial);
-
+        var random = Math.floor(Math.random() * 5) + 1;         //random number of actions of new material
+        var newMaterial = this.createMaterial();
+        newMaterial.generateRandomActionList(random);
     }
 }
 
@@ -253,10 +251,20 @@ ActionLearningMaterialManager.prototype.mutateMaterial = function(materialIndexD
 }
 
 /**
+ * Create a new material and push to the list 
+ * return the new material
+ */
+ActionLearningMaterialManager.prototype.createMaterial = function(actionNameList = []) {
+    var newMaterial = new ActionLearningMaterial(actionNameList)
+    this.materialList.push(newMaterial);
+    return newMaterial;
+}
+
+/**
  * 
  */
-ActionLearningMaterialManager.prototype.addMaterial = function(actionNameList) {
-    this.materialList.push(new ActionLearningMaterial(actionNameList));
+ActionLearningMaterialManager.prototype.addMaterial = function(newMaterial) {
+    this.materialList.push(newMaterial);
 }
 
 /**
@@ -278,7 +286,7 @@ ActionLearningMaterialManager.prototype.materialReport = function(index, result)
     this.materialList[index].report(result);
     if (result && randomRoll < copyRate) {
         console.log("copied"); 
-        this.addMaterial(new ActionLearningMaterial(this.materialList[index].getActionList));
+        this.createMaterial(this.materialList[index].getActionList());
     } else if (randomRoll < deleteRate) {
         this.materialList.splice(index, 1);
         console.log("deleted"); 
@@ -303,8 +311,7 @@ function ActionLearningMaterial(actionList = [], ticket = 10) {
 }
 
 /**
- * Dencrease number of ticket
- * Min = 1
+ * generate a randon list of actions
  */
 ActionLearningMaterial.prototype.generateRandomActionList = function(size) {
     var actionList = ActionLibrary.getActionList();
@@ -317,8 +324,7 @@ ActionLearningMaterial.prototype.generateRandomActionList = function(size) {
 
 
 /**
- * Dencrease number of ticket
- * Min = 1
+ * 
  */
 ActionLearningMaterial.prototype.report = function(result) {
     this.trial++;
@@ -343,6 +349,15 @@ ActionLearningMaterial.prototype.getActionList = function() {
     });
 
     return cloneList;
+}
+
+/**
+ *  Mutate the action list of the material
+ */
+ActionLearningMaterial.prototype.mutate = function() {
+    this.actionList.map(function(action) {
+        
+    });
 }
 
 /**

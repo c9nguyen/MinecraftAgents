@@ -71,7 +71,7 @@ GetWood.prototype.update = function (tick, agent) {
 // When would we have an action modify 
 function FindWood(actionNameList) {
     Behaviour.call(this, actionNameList);
-    this.trials = 10;
+    this.trials = 1;
     this.trialsCounter = 0;
     this.succeeded = false;
 }

@@ -63,11 +63,15 @@ Agent.prototype.stopMove = function() {
     this.bot.clearControlStates();
 };
 
-Agent.prototype.dig = function(block) {
-    if(this.brain.wood !== null) {
-        console.log(this.brain.wood);
-        if (this.bot.targetDigBlock === null)
-            this.bot.dig(this.brain.wood);
+
+Agent.prototype.dig = function(cb) {
+    if(this.brain.wood != null) {
+        if (this.bot.targetDigBlock == null) {
+            if (this.bot.canDigBlock(this.brain.wood)) {
+                // console.log(this.brain.wood)
+                this.bot.dig(this.brain.wood, cb);
+            }
+        }
     }
 }
 

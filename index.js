@@ -6,6 +6,8 @@ if(process.argv.length < 4 || process.argv.length > 5) {
   process.exit(1);
 }
 
+
 var agentManager = new LearningAgentManager(process.argv[2], parseInt(process.argv[3]), parseInt(process.argv[4]));
+
 
 agentManager.start();

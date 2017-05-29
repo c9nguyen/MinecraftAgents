@@ -12,8 +12,10 @@ function LearningAgentManager(host, port, amount) {
 }
 
 LearningAgentManager.prototype.start = function () {
+    var startingSize = 5;
+
     this.almManager = new ActionLearningMaterialManager();
-    this.almManager.generateRandomMaterials(10);
+    this.almManager.generateRandomMaterials(10, startingSize);
     // this.almManager.addMaterial(['Look']);
     // this.almManager.addMaterial(['LookRandom']);
     // this.almManager.addMaterial(['TurnHeadRight']);
@@ -124,9 +126,9 @@ function ActionLearningMaterialManager() {
 /**
  * Generate size number of random materials
  */
-ActionLearningMaterialManager.prototype.generateRandomMaterials = function(size = 1) {
+ActionLearningMaterialManager.prototype.generateRandomMaterials = function(size = 1, numberOfActions = 1) {
     while (size -- > 0) {
-        var random = Math.floor(Math.random() * 5) + 1;         //random number of actions of new material
+        var random = Math.floor(Math.random() * numberOfActions) + 1;         //random number of actions of new material
         var newMaterial = this.createMaterial();
         newMaterial.generateRandomActionList(random);
     }
@@ -282,16 +284,30 @@ ActionLearningMaterialManager.prototype.materialReport = function(index, result)
     var randomRoll = (Math.random() * 100);
     var deleteRate = 5;
     var copyRate = 5;
+    var addActionRate = 10;
     console.log(this.materialList.length);
     this.materialList[index].report(result);
     if (result && randomRoll < copyRate) {
         console.log("copied"); 
-        this.createMaterial(this.materialList[index].getActionList());
+        var newMaterial = this.createMaterial(this.materialList[index].getActionList());
+        newMaterial.mutate();   //mutate the new material
     } else if (randomRoll < deleteRate) {
+        //if material list is too small, add a random one with size of the one to be deleted + 1
+        if (this.materialList.length < 6) {
+         //   var random = Math.floor(Math.random() * this.materialList[index].getActionList.length + 1) + 1;         //random number of actions of new material
+            var newMaterial = this.createMaterial();
+            newMaterial.generateRandomActionList(this.materialList[index].getActionList().length);
+
+            console.log("Lenght: " + this.materialList[index].getActionList().length);
+            //Chance to add 1 additional action
+            if (Math.floor(Math.random() * 100) <= addActionRate) {
+                newMaterial.addRandomAction();
+            } 
+
+        }  
         this.materialList.splice(index, 1);
         console.log("deleted"); 
-        //if material list is too small, add a random one
-        if (this.materialList.length < 0)   this.generateRandomMaterials(1);
+
     }
 
 }
@@ -317,10 +333,20 @@ ActionLearningMaterial.prototype.generateRandomActionList = function(size) {
     var actionList = ActionLibrary.getActionList();
 
     while(size-- > 0) {
-        var random = Math.floor(Math.random() * actionList.length);
-        this.actionList.push(actionList[random]);
+        this.addRandomAction();
     }
 }
+
+/**
+ * Add 1 random action into the list
+ */
+ActionLearningMaterial.prototype.addRandomAction = function() {
+    var actionList = ActionLibrary.getActionList();
+    var random = Math.floor(Math.random() * actionList.length);
+    this.actionList.push(actionList[random]);
+}
+
+
 
 
 /**
@@ -355,9 +381,20 @@ ActionLearningMaterial.prototype.getActionList = function() {
  *  Mutate the action list of the material
  */
 ActionLearningMaterial.prototype.mutate = function() {
-    this.actionList.map(function(action) {
-        
-    });
+    var mutationRate = 5;
+    var actionList = ActionLibrary.getActionList();
+    
+    for (var i = 0; i < this.actionList; i++) {
+        if (Math.floor(Math.random() * 100) <= mutationRate) {
+            var random = Math.floor(Math.random() * actionList.length);
+            this.actionList[i] = actionList[random];
+        }
+    }
+
+    //Chance to add 1 additional action
+    if (Math.floor(Math.random() * 100) <= mutationRate) {
+        this.addRandomAction();
+    } 
 }
 
 /**

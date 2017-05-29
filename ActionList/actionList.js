@@ -1,5 +1,5 @@
 
-// Should an ActionList be an action? Or should we have an action that spawns an action?
+// Should an ActionList be an action? Or should we have an action that spawns an action?Seanan McGuire
 // each lane used for sensor or actuator
 // use actionlist as state machine?
 //   function update(delta)

@@ -4,26 +4,34 @@ function ActionLane() {
     this.actions = [];
 }
 
+ActionLane.prototype.reset = function() {
+    this.actions.forEach(function(action) {
+        action.finished = false;
+        action.succeeded = false;
+        action.failed = false;
+    }, this);
+}
+
 ActionLane.prototype.cancel = function() {
-    actions.forEach(function(action) {
+    this.actions.forEach(function(action) {
         action.cancel();
     }, this);
 }
 
 ActionLane.prototype.pause = function() {
-    actions.forEach(function(action) {
+    this.actions.forEach(function(action) {
         action.pause();
     }, this);
 }
 
 ActionLane.prototype.resume = function() {
-    actions.forEach(function(action) {
+    this.actions.forEach(function(action) {
         action.resume();
     }, this);
 }
 
 ActionLane.prototype.block = function() {
-    actions.forEach(function(action) {
+    this.actions.forEach(function(action) {
         action.block();
     }, this);
 }

@@ -214,7 +214,7 @@ TurnHeadRight.prototype.constructor = TurnHeadRight;
 TurnHeadRight.prototype.update = function (delta, agent) {
 //    let pitch = getRandomFloat(-Math.PI / 2, Math.PI / 2);
     var originYaw = agent.bot.entity.yaw;
-    agent.look(originYaw + Math.PI / 16, 0);
+    agent.look(originYaw + Math.PI / 2, 0);
   //  console.log("turn right")
     this.complete();
 }
@@ -237,7 +237,7 @@ TurnHeadLeft.prototype.constructor = TurnHeadLeft;
 TurnHeadLeft.prototype.update = function (delta, agent) {
 //    let pitch = getRandomFloat(-Math.PI / 2, Math.PI / 2);
     var originYaw = agent.bot.entity.yaw;
-    agent.look(originYaw - Math.PI / 16, 0);
+    agent.look(originYaw - Math.PI / 2, 0);
   //  console.log("turn left")
     this.complete();
 }
@@ -383,9 +383,9 @@ function getActionList() {
         // "StartMoveBackward",
         // "StopMoveBackward",
         "LookRandom",
-        //"BreakBlock",
+        "BreakBlock",
         "TurnHeadRight",
-        "TurnHeadLeft",
+        //"TurnHeadLeft",
         "HeadUp",
         "HeadDown"
     ];

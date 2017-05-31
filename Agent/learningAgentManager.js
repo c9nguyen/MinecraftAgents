@@ -96,7 +96,7 @@ LearningAgentManager.prototype.initialActionForAgent = function (agent) {
     //Get a random actionlist
     var randomIndex = this.almManager.randomMaterialIndex();
     var actionList = this.almManager.getMaterialAction(randomIndex);
-    console.log(actionList + " ticket: " + this.almManager.materialList[randomIndex].ticket);
+    console.log("length: " + actionList.length + " ticket: " + this.almManager.materialList[randomIndex].ticket);
 
     var find = new learningBeharivourLibrary.FindWood(actionList);
     // find.pushBack(new ActionLibrary.Look());
@@ -282,16 +282,17 @@ ActionLearningMaterialManager.prototype.getMaterialAction = function(index) {
  */
 ActionLearningMaterialManager.prototype.materialReport = function(index, result) {
     var randomRoll = (Math.random() * 100);
-    var deleteRate = 5;
-    var copyRate = 5;
-    var addActionRate = 10;
+    var deleteRate = 3;
+    var copyRate = 10;
+    var addActionRate = 20;
     console.log(this.materialList.length);
     this.materialList[index].report(result);
+    if(result) console.log("\t\t\tfound " + index); 
     if (result && randomRoll < copyRate) {
-        console.log("copied"); 
+        console.log("\t\t\tcopied " + index); 
         var newMaterial = this.createMaterial(this.materialList[index].getActionList());
         newMaterial.mutate();   //mutate the new material
-    } else if (randomRoll < deleteRate) {
+    } else if (!result && randomRoll < deleteRate) {
         //if material list is too small, add a random one with size of the one to be deleted + 1
         if (this.materialList.length < 6) {
          //   var random = Math.floor(Math.random() * this.materialList[index].getActionList.length + 1) + 1;         //random number of actions of new material
@@ -299,14 +300,16 @@ ActionLearningMaterialManager.prototype.materialReport = function(index, result)
             newMaterial.generateRandomActionList(this.materialList[index].getActionList().length);
 
             console.log("Lenght: " + this.materialList[index].getActionList().length);
+
             //Chance to add 1 additional action
             if (Math.floor(Math.random() * 100) <= addActionRate) {
                 newMaterial.addRandomAction();
+                console.log("\t\t\tadd");
             } 
 
-        }  
+        }
         this.materialList.splice(index, 1);
-        console.log("deleted"); 
+        console.log("\t\t\tdeleted " + index); 
 
     }
 
@@ -385,15 +388,21 @@ ActionLearningMaterial.prototype.mutate = function() {
     var actionList = ActionLibrary.getActionList();
     
     for (var i = 0; i < this.actionList; i++) {
-        if (Math.floor(Math.random() * 100) <= mutationRate) {
-            var random = Math.floor(Math.random() * actionList.length);
+        var random = Math.floor(Math.random() * 100);
+        if (random <= mutationRate) {       //change to another random action
+            var random = Math.floor(Math.random() * actionList.length); 
             this.actionList[i] = actionList[random];
+        } else if (random <= mutationRate * 2) {        //delete action
+            this.actionList(i, 1);
+            i--;
+            console.log("\t\t\tdelete suc");
         }
     }
 
     //Chance to add 1 additional action
     if (Math.floor(Math.random() * 100) <= mutationRate) {
         this.addRandomAction();
+        console.log("\t\t\tadd suc");
     } 
 }
 

@@ -277,17 +277,24 @@ ActionLearningMaterialManager.prototype.getMaterialAction = function(index) {
 }
 
 /**
+ * 
+ */
+ActionLearningMaterialManager.prototype.managerReport = function(index, result) {
+
+}
+
+/**
  * A material report back with the result
  * An action will be taken here depends on the result
  */
 ActionLearningMaterialManager.prototype.materialReport = function(index, result) {
     var randomRoll = (Math.random() * 100);
-    var deleteRate = 3;
+    var deleteRate = 10;
     var copyRate = 10;
-    var addActionRate = 20;
+    var addActionRate = 40;
     console.log(this.materialList.length);
     this.materialList[index].report(result);
-    if(result) console.log("\t\t\tfound " + index); 
+    if(result) console.log("\t\t\tfound " + index + "  " + randomRoll); 
     if (result && randomRoll < copyRate) {
         console.log("\t\t\tcopied " + index); 
         var newMaterial = this.createMaterial(this.materialList[index].getActionList());

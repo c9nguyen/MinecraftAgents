@@ -16,6 +16,7 @@ LearningAgentManager.prototype.start = function () {
 
     this.almManager = new ActionLearningMaterialManager(this.amount);
     this.almManager.generateRandomMaterials(10, startingSize);
+    this.agentWaitingList = [];
     // this.almManager.addMaterial(['Look']);
     // this.almManager.addMaterial(['LookRandom']);
     // this.almManager.addMaterial(['TurnHeadRight']);
@@ -82,6 +83,28 @@ LearningAgentManager.prototype.loop = function () {
     this.loop();
 }
 
+/**
+ * Put one agent into the queue.
+ * If all agents are in waiting list, then evaluate the waiting report
+ * Then initial the agents for actions
+ */
+LearningAgentManager.prototype.waitForOrder = function(waitingAgent) {
+    this.agentWaitingList.push(waitingAgent);
+   // console.log("size: " + this.agentWaitingList.length);
+
+    if (this.agentWaitingList.length >= this.amount) {  //all agents waiting for evaluation
+        
+        this.almManager.managerReport();
+        var self = this;
+        this.agentWaitingList.map(function(agent) {
+            self.initialActionForAgent(agent);
+            //console.log("Initial " + agent.name);
+        });
+        this.agentWaitingList.splice(0, this.agentWaitingList.length);
+
+    }
+}
+
 LearningAgentManager.prototype.initialActionForAgent = function (agent) {
     var self = this;
     agent.brain.wood = false;
@@ -94,7 +117,6 @@ LearningAgentManager.prototype.initialActionForAgent = function (agent) {
     }
 
     //Get a random actionlist
-    console.log(this);
     var randomIndex = this.almManager.randomMaterialIndex();
     var actionList = this.almManager.getMaterialAction(randomIndex);
     console.log("length: " + actionList.length + " ticket: " + this.almManager.materialList[randomIndex].ticket);
@@ -106,12 +128,13 @@ LearningAgentManager.prototype.initialActionForAgent = function (agent) {
     find.on('completed', function() {
         //console.log(agent.name + ' Found wood!')
         self.almManager.materialReport(randomIndex, find.succeeded);
-        self.almManager.waitForOrder(agent, self.initialActionForAgent);
+        self.waitForOrder(agent);
+        console.log("Here " + agent.name);
         //self.initialActionForAgent(agent);
     })
     testSequence.pushBack(find); // Step 1
 
-    this.mainAgent.setActionList(testSequence);
+    agent.setActionList(testSequence);
 }
 
 function test(agent) {
@@ -121,12 +144,9 @@ function test(agent) {
 
 /* ================================================================================= */
 
-function ActionLearningMaterialManager(agentSize = 0) {
-    this.agentSize = agentSize; //number of agent this managing
-    this.reportCount = 0;   //Number of agents have reported
+function ActionLearningMaterialManager() {
     this.materialList = [];
     this.reportList = [];
-    this.agentWaitingList = [];
 }
 
 /**
@@ -291,11 +311,11 @@ ActionLearningMaterialManager.prototype.getMaterialAction = function(index) {
 ActionLearningMaterialManager.prototype.waitForOrder = function(waitingAgent, callbackOrder) {
     this.agentWaitingList.push({agent: waitingAgent, order: callbackOrder});
     if (this.agentWaitingList.length >= this.agentSize) {
-        var self = this;
-        this.reportList.map(function(report) {  //evaluating report list
-            self.evaluate(report.material, report.result);
-        });
-        this.reportList.splice(0,this.reportList.length);   //empty the list
+        // var self = this;
+        // this.reportList.map(function(report) {  //evaluating report list
+        //     self.evaluate(report.material, report.result);
+        // });
+        // this.reportList.splice(0,this.reportList.length);   //empty the list
 
         //run waiting order
         this.agentWaitingList.map(function(waiter) {
@@ -318,7 +338,11 @@ ActionLearningMaterialManager.prototype.materialReport = function(index, result)
  * Evaluate the whole queue
  */
 ActionLearningMaterialManager.prototype.managerReport = function() {
-
+    var self = this;
+    this.reportList.map(function(report) {  //evaluating report list
+        self.evaluate(report.material, report.result);
+    });
+    this.reportList.splice(0,this.reportList.length);   //empty the list
 }
 
 /**
@@ -331,6 +355,12 @@ ActionLearningMaterialManager.prototype.evaluate = function(index, result) {
     var copyRate = 10;
     var addActionRate = 40;
     console.log(this.materialList.length);
+
+    if (this.materialList[index] === undefined) {
+        console.log("undefined at: " + index);
+        console.log(this.materialList);
+    }
+
     this.materialList[index].report(result);
     if(result) console.log("\t\t\tfound " + index + "  " + randomRoll); 
     if (result && randomRoll < copyRate) {

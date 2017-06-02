@@ -67,15 +67,15 @@ Agent.prototype.stopMove = function() {
 Agent.prototype.dig = function(cb) {
 
     if(this.brain.wood != null) {
-        console.log("the wood:" + this.brain.wood);
+ //       console.log("the wood:" + this.brain.wood);
         if (this.bot.targetDigBlock == null) {
             if (this.bot.canDigBlock(this.brain.wood)) {
-                console.log("the wood2:" + this.brain.wood);
+ //               console.log("the wood2:" + this.brain.wood);
                 this.bot.dig(this.brain.wood, cb);
             }
         }
     }
-    console.log("Exit");
+
 }
 
 Agent.prototype.look = function(yaw, pitch) {

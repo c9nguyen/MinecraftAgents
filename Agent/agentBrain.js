@@ -26,7 +26,7 @@ function AgentBrain(agent) {
     this.actionList = new ActionList();
     this.woodID = 17;
     this.wood = false;
-    this.viewDistance = 15;
+    this.viewDistance = 30;
     // this.actionSequence = ROUTINE.States.LOOKINGFORWOOD;
     // this.actionCursor = 0;
 }

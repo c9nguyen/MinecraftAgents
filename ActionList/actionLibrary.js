@@ -383,9 +383,9 @@ function getActionList() {
         // "StartMoveBackward",
         // "StopMoveBackward",
         "LookRandom",
-        "BreakBlock",
+        //"BreakBlock",
         "TurnHeadRight",
-        //"TurnHeadLeft",
+        "TurnHeadLeft",
         "HeadUp",
         "HeadDown"
     ];

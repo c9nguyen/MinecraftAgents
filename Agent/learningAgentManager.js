@@ -129,10 +129,19 @@ LearningAgentManager.prototype.initialActionForAgent = function (agent) {
         //console.log(agent.name + ' Found wood!')
         self.almManager.materialReport(randomIndex, find.succeeded);
         self.waitForOrder(agent);
-        console.log("Here " + agent.name);
+
         //self.initialActionForAgent(agent);
-    })
+    });
     testSequence.pushBack(find); // Step 1
+
+    // var walk = new learningBeharivourLibrary.WalkToWood();
+    // // walk.pushBack(new ActionLibrary.StartMoveForward());
+    // // walk.pushBack(new ActionLibrary.Look())
+    // walk.block();
+    //     walk.on('completed', function() {
+    //     console.log('Next to Wood!')
+    // });
+    // testSequence.pushBack(walk); // Step 1
 
     agent.setActionList(testSequence);
 }

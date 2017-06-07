@@ -112,6 +112,26 @@ StartMoveBackward.prototype.update = function (delta, agent) {
     this.complete();
 }
 
+/* ======================================================================== */
+
+function StepForward() {
+    Action.call(this)
+}
+
+StepForward.prototype = Object.create(Action.prototype);
+StepForward.prototype.constructor = StepForward;
+
+StepForward.prototype.update = function (delta, agent) {
+    //console.log("start back");
+    agent.startMove('forward');
+    setTimeout(function() {
+        agent.stopMove('forward');
+    }, 1000);
+    this.complete();
+}
+
+/* ======================================================================== */
+
 function StopMoveBackward() {
     Action.call(this)
 }
@@ -378,16 +398,17 @@ function getActionList() {
         "RotateHeadRandom",
         "Look",
         // "Wait",
-        "StartMoveForward",
-        "StopMoveForward",
+        //"StartMoveForward",
+        //"StopMoveForward",
         // "StartMoveBackward",
         // "StopMoveBackward",
         "LookRandom",
-        //"BreakBlock",
+        "BreakBlock",
         "TurnHeadRight",
         "TurnHeadLeft",
         "HeadUp",
-        "HeadDown"
+        "HeadDown",
+        "StepForward"
     ];
 
     return actionList;
@@ -434,6 +455,9 @@ function getAction(actionName) {
             break;
         case "HeadDown":
             action = new HeadDown();
+            break;
+        case "StepForward":
+            action = new StepForward();
             break;
     }
 

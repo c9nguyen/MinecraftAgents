@@ -6,10 +6,12 @@ function Agent(bot, name, manager){
     this.bot = bot;
     this.brain = new AgentBrain(this);
     this.manager = manager; //The manager that managing this agent
+    this.moving = false;
     this.start();
 }
 
 Agent.prototype.update = function(){
+    this.bot.setControlState('sprint', this.moving);
     this.brain.update();
 };
 

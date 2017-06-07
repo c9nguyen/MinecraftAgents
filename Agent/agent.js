@@ -11,7 +11,7 @@ function Agent(bot, name, manager){
 }
 
 Agent.prototype.update = function(){
-    this.bot.setControlState('sprint', this.moving);
+    //this.bot.setControlState('sprint', this.moving);
     this.brain.update();
 };
 

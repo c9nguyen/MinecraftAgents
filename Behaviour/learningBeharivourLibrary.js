@@ -11,6 +11,7 @@ function GetWood(agent) { //This would become [FindWood, WalkToWood, ChopWood]
     this.currentAmount = 0;
     this.amount = 1;
     this.pushBack(new ActionLibrary.Origin()); // Step 1
+
     // agent.stopMove();
     // agent.look(0, 0);
     // var find = new FindWood();
@@ -56,6 +57,11 @@ GetWood.prototype.update = function (tick, agent) {
     }
 }
 
+GetWood.prototype.stop = function () {
+    this.finished = true;
+    this.complete();
+}
+
 // function Learning(actionList, goal, trials) {
 //     this.actionList = actionList;
 //     this.goal = goal;
@@ -73,7 +79,7 @@ function FindWood(actionNameList) {
     Behaviour.call(this, actionNameList);
     this.trials = 1;
     this.trialsCounter = 0;
-    this.succeeded = false;
+
 }
 
 
@@ -83,14 +89,13 @@ FindWood.prototype.constructor = FindWood;
 FindWood.prototype.update = function (tick, agent) {
    // console.log(this.size)
    if(this.trialsCounter >= this.trials) {
-       console.log("Failed");
        this.complete();
    }
 
     if (agent.brain.wood) {
         // this.parent.pushBack(new WalkToWood())
         this.succeeded = true;
-        console.log(agent.name + ' Found wood! after ' + this.trialsCounter + ' trials');
+        // console.log(agent.name + ' Found wood! after ' + this.trialsCounter + ' trials');
         this.complete();
     } else if (this.size === 0) {
         this.loadActionList();
@@ -104,41 +109,52 @@ FindWood.prototype.update = function (tick, agent) {
     }
 }
 
-function WalkToWood() { //This would become [BrainLook, MoveForward]
-    Behaviour.call(this);
+function WalkToWood(actionNameList) { //This would become [BrainLook, MoveForward]
+    Behaviour.call(this, actionNameList);
 }
 
 WalkToWood.prototype = Object.create(Behaviour.prototype);
 WalkToWood.prototype.constructor = WalkToWood;
 
 WalkToWood.prototype.update = function (tick, agent) {
+    console.log("Walking to wood");
     if (agent.brain.nextToWood()) {
         // Chop Wood
-        agent.stopMove();
+       // agent.stopMove();
         // this.parent.pushBack(new ChopWood());
+        this.succeeded = true;
         this.complete();
-    } else if (!agent.brain.wood) {
+    } else if (!agent.brain.wood || this.size === 0) {
         // Find Wood 
-        var wood = new FindWood();
-        wood.block();
-        this.parent.pushFront(wood); // we have to find wood before we can chop it
+        // var wood = new FindWood();
+        // wood.block();
+        // this.parent.pushFront(wood); // we have to find wood before we can chop it
+        this.complete();
     } else {
         Behaviour.prototype.update.call(this, tick, agent);
     }
 }
 
-function ChopWood() { //This would become [BrainLook, SwingArm]
-    Behaviour.call(this);
+function ChopWood(actionNameList, goal) { //This would become [BrainLook, SwingArm]
+    Behaviour.call(this, actionNameList);
+    this.goal = goal;
 }
 
 ChopWood.prototype = Object.create(Behaviour.prototype);
 ChopWood.prototype.constructor = ChopWood;
 
 ChopWood.prototype.update = function (tick, agent) {
-    if (!agent.brain.wood) {
-        // this.parent.currentAmount++;
+    console.log("Chopping wood, need " + this.goal);
+    // console.log(this.size);
+
+    if (this.goal === agent.brain.checkWood()) {
+        this.succeeded = true;
         this.complete();
-    } else if (agent.brain.nextToWood() && agent.brain.wood) {
+    } else if (!agent.brain.wood || this.size === 0 || !agent.brain.nextToWood()) {
+        // this.parent.currentAmount++;
+        console.log("Have wood: " + agent.brain.checkWood());
+        this.complete();
+    } else {
         Behaviour.prototype.update.call(this, tick, agent);
     }
 }

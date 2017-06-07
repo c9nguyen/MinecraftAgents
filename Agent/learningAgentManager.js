@@ -13,9 +13,12 @@ function LearningAgentManager(host, port, amount) {
 
 LearningAgentManager.prototype.start = function () {
     var startingSize = 5;
+    this.almManagers = [];  
+    for (var i = 0; i < 3; i ++) {
+        this.almManagers[i] = new ActionLearningMaterialManager(i);
+        this.almManagers[i].generateRandomMaterials(10, startingSize);
+    }
 
-    this.almManager = new ActionLearningMaterialManager(this.amount);
-    this.almManager.generateRandomMaterials(10, startingSize);
     this.agentWaitingList = [];
     // this.almManager.addMaterial(['Look']);
     // this.almManager.addMaterial(['LookRandom']);
@@ -93,8 +96,9 @@ LearningAgentManager.prototype.waitForOrder = function(waitingAgent) {
    // console.log("size: " + this.agentWaitingList.length);
 
     if (this.agentWaitingList.length >= this.amount) {  //all agents waiting for evaluation
-        
-        this.almManager.managerReport();
+        for (var i = 0; i < 3; i ++) {
+            this.almManagers[i].managerReport();
+        }
         var self = this;
         this.agentWaitingList.map(function(agent) {
             self.initialActionForAgent(agent);
@@ -107,9 +111,11 @@ LearningAgentManager.prototype.waitForOrder = function(waitingAgent) {
 
 LearningAgentManager.prototype.initialActionForAgent = function (agent) {
     var self = this;
-    agent.brain.wood = false;
+    agent.brain.wood = null;
     var testSequence = new learningBeharivourLibrary.GetWood(agent); // Objective / Testing Objective
-
+    var find, walk, chop;
+    this.numOfWood = agent.brain.checkWood();
+    console.log(agent.name + " Num of wood:" + this.numOfWood);
     //not using now
     // this.runCounter++;
     // if (this.runCounter >= 5) {
@@ -117,32 +123,116 @@ LearningAgentManager.prototype.initialActionForAgent = function (agent) {
     //     this.runCounter = 1;
     // }
 
-    //Get a random actionlist
-    var randomIndex = this.almManager.randomMaterialIndex();
-    var actionList = this.almManager.getMaterialAction(randomIndex);
-    console.log("length: " + actionList.length + " ticket: " + this.almManager.materialList[randomIndex].ticket);
+    //Chop wood
+    chopRandomIndex = this.almManagers[2].randomMaterialIndex();
+    actionList = this.almManagers[2].getMaterialAction(chopRandomIndex);
+    actionList = ["BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock", "BreakBlock"];
+    //console.log("Chop length: " + actionList.length + " ticket: " + this.almManagers[2].materialList[chopRandomIndex].ticket);
+    chop = new learningBeharivourLibrary.ChopWood(actionList, this.numOfWood + 1);
+    chop.block();
+    chop.on('completed', function() {
+        //console.log('chopped');
+        // self.almManagers[2].materialReport(randomIndex, find.succeeded);
+        // self.waitForOrder(agent);
+        console.log("Finish list of actions");
 
-    var find = new learningBeharivourLibrary.FindWood(actionList);
+        self.almManagers[2].materialReport(chopRandomIndex, chop.succeeded);
+        if (chop.succeeded) {
+            console.log('\t\t\t\tGot wood');
+        } else {
+          //  console.log('Failed getting Wood!');
+            self.waitForOrder(agent);
+        }
+        testSequence.complete();
+    });
+
+    //Walk to wood
+    walkRandomIndex = this.almManagers[1].randomMaterialIndex();
+    actionList = this.almManagers[1].getMaterialAction(walkRandomIndex);
+    //console.log("Walk length: " + actionList.length + " ticket: " + this.almManagers[1].materialList[walkRandomIndex].ticket);
+    walk = new learningBeharivourLibrary.WalkToWood(actionList);
+    walk.block();
+    walk.on('completed', function() {
+
+        self.almManagers[1].materialReport(walkRandomIndex, walk.succeeded);
+        if (walk.succeeded) {
+            console.log('Next to Wood!');
+            testSequence.pushBack(chop); 
+        } else {
+           // console.log('Failed walk!');
+            agent.setActionList(null);
+            self.waitForOrder(agent);
+
+        }
+    });
+
+
+    //Find wood
+    var findRandomIndex = this.almManagers[0].randomMaterialIndex();
+    var actionList = this.almManagers[0].getMaterialAction(findRandomIndex);
+   // console.log("Find length: " + actionList.length + " ticket: " + this.almManagers[0].materialList[findRandomIndex].ticket);
+    find = new learningBeharivourLibrary.FindWood(actionList);
     // find.pushBack(new ActionLibrary.Look());
     // find.pushBack(new ActionLibrary.TurnHeadRight());
     find.block();
     find.on('completed', function() {
         //console.log(agent.name + ' Found wood!')
-        self.almManager.materialReport(randomIndex, find.succeeded);
-        self.waitForOrder(agent);
+        self.almManagers[0].materialReport(findRandomIndex, find.succeeded);
+        if (find.succeeded) {
+            console.log("Found wood");
+            testSequence.pushBack(walk); 
+        } else {
+            //console.log("Failed finding wood");
+            agent.setActionList(null);
+            self.waitForOrder(agent);
 
+       }
         //self.initialActionForAgent(agent);
     });
     testSequence.pushBack(find); // Step 1
 
-    // var walk = new learningBeharivourLibrary.WalkToWood();
-    // // walk.pushBack(new ActionLibrary.StartMoveForward());
-    // // walk.pushBack(new ActionLibrary.Look())
+    // Walk to wood
+    // walkRandomIndex = this.almManagers[1].randomMaterialIndex();
+    // actionList = this.almManagers[1].getMaterialAction(walkRandomIndex);
+    // console.log("Walk length: " + actionList.length + " ticket: " + this.almManagers[1].materialList[walkRandomIndex].ticket);
+    // walk = new learningBeharivourLibrary.WalkToWood(actionList);
     // walk.block();
-    //     walk.on('completed', function() {
-    //     console.log('Next to Wood!')
+    // walk.on('completed', function() {
+
+    //     self.almManagers[1].materialReport(walkRandomIndex, walk.succeeded);
+    //     if (walk.succeeded) {
+    //         console.log('Next to Wood!');
+    //     } else {
+    //         console.log('Failed walk!');
+    //         agent.setActionList(null);
+    //         self.waitForOrder(agent);
+
+    //     }
     // });
-    // testSequence.pushBack(walk); // Step 1
+   // testSequence.pushBack(walk);
+
+    // //Chop wood
+    // chopRandomIndex = this.almManagers[2].randomMaterialIndex();
+    // actionList = this.almManagers[2].getMaterialAction(chopRandomIndex);
+    // console.log("Chop length: " + actionList.length + " ticket: " + this.almManagers[2].materialList[chopRandomIndex].ticket);
+    // chop = new learningBeharivourLibrary.ChopWood(actionList, this.numOfWood + 1);
+    // chop.block();
+    // chop.on('completed', function() {
+    //     //console.log('chopped');
+    //     // self.almManagers[2].materialReport(randomIndex, find.succeeded);
+    //     // self.waitForOrder(agent);
+    //     console.log("Finish list of actions");
+
+    //     self.almManagers[2].materialReport(chopRandomIndex, chop.succeeded);
+    //     if (chop.succeeded) {
+    //         console.log('\t\t\t\tGot wood');
+    //     } else {
+    //         console.log('Failed getting Wood!');
+    //         self.waitForOrder(agent);
+    //     }
+    //     testSequence.complete();
+    // });
+    //testSequence.pushBack(chop); 
 
     agent.setActionList(testSequence);
 }
@@ -154,9 +244,10 @@ function test(agent) {
 
 /* ================================================================================= */
 
-function ActionLearningMaterialManager() {
+function ActionLearningMaterialManager(id) {
     this.materialList = [];
     this.reportList = [];
+    this.id = id;
 }
 
 /**
@@ -369,20 +460,20 @@ ActionLearningMaterialManager.prototype.managerReport = function() {
  */
 ActionLearningMaterialManager.prototype.evaluate = function(index, result) {
     var randomRoll = (Math.random() * 100);
-    var deleteRate = 10;
-    var copyRate = 10;
+    var deleteRate = 5;
+    var copyRate = 20;
     var addActionRate = 40;
-    console.log(this.materialList.length);
+//    console.log(this.materialList.length);
 
     if (this.materialList[index] === undefined) {
-        console.log("undefined at: " + index);
+        console.log("undefined at material list id: " + this.id + " index: " + index);
         console.log(this.materialList);
     }
 
     this.materialList[index].report(result);
-    if(result) console.log("\t\t\tfound " + index + "  " + randomRoll); 
+ //   if(result) console.log("\t\t\tfound " + index + "  " + randomRoll); 
     if (result && randomRoll < copyRate) {
-        console.log("\t\t\tcopied " + index); 
+  //      console.log("\t\t\tcopied " + index); 
         var newMaterial = this.createMaterial(this.materialList[index].getActionList());
         newMaterial.mutate();   //mutate the new material
     } else if (!result && randomRoll < deleteRate) {
@@ -392,17 +483,17 @@ ActionLearningMaterialManager.prototype.evaluate = function(index, result) {
             var newMaterial = this.createMaterial();
             newMaterial.generateRandomActionList(this.materialList[index].getActionList().length);
 
-            console.log("Lenght: " + this.materialList[index].getActionList().length);
+            //console.log("Lenght: " + this.materialList[index].getActionList().length);
 
             //Chance to add 1 additional action
             if (Math.floor(Math.random() * 100) <= addActionRate) {
                 newMaterial.addRandomAction();
-                console.log("\t\t\tadd");
+         //       console.log("\t\t\tadd");
             } 
 
         }
         this.materialList[index].toBeDeleted = true;
-        console.log("\t\t\tdeleted " + index); 
+     //   console.log("\t\t\tdeleted " + index); 
 
     }
 

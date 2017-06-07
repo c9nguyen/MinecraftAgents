@@ -25,7 +25,7 @@ function AgentBrain(agent) {
     this.agent = agent;
     this.actionList = new ActionList();
     this.woodID = 17;
-    this.wood = false;
+    this.wood = null;
     this.viewDistance = 30;
     // this.actionSequence = ROUTINE.States.LOOKINGFORWOOD;
     // this.actionCursor = 0;
@@ -214,9 +214,9 @@ AgentBrain.prototype.look = function () {
         cursor = cursor.plus(step_delta);
         var block = this.agent.bot.blockAt(cursor);
         if (block !== null && block.boundingBox !== "empty") { // Check if the block is not empty
-            if (block.material === "wood")
+            if (block.material === "wood") {
                 this.wood = block;
-            else
+            } else
                 this.wood = null;
             break;
         }
@@ -232,6 +232,17 @@ AgentBrain.prototype.hasWood = function () {
         }
     }
     return false;
+}
+
+AgentBrain.prototype.checkWood = function () {
+    var inv = this.agent.bot.inventory.slots.filter(Boolean);
+
+    for (var i = inv.length - 1; i >= 0; --i) {
+        if (inv[i].type === this.woodID) {
+            return inv[i].count;
+        }
+    }
+    return 0;
 }
 
 AgentBrain.prototype.nextToWood = function () {
@@ -263,8 +274,11 @@ AgentBrain.prototype.setActionList = function (actionList) {
 // }
 
 AgentBrain.prototype.update = function (delta) {
-    if (this.actionList)
+    if (this.actionList) {
+       // console.log("Updating");
         this.actionList.update(delta, this.agent);
+    }
+        
 }
 
 AgentBrain.prototype.pause = function () {

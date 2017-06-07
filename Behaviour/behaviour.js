@@ -9,7 +9,7 @@ var ActionLibrary = require('../ActionList/actionLibrary.js')
 // This is meerly an abstraction place holder. We might want a higher api between actual Behaviours and action lists.
 function Behaviour(actionNameList = []) {
     ActionList.call(this);
-
+    this.succeeded = false;
     this.actionNameList = actionNameList;
     this.loadActionList();
 }
